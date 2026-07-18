@@ -37,7 +37,11 @@ jobs:
 It posts a summary comment plus **line-anchored inline comments** on the exact
 lines — here reviewing a file with a SQL-injection and two missing-`await` bugs:
 
-![Kaniscope posting inline review comments on a pull request](docs/example-review.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/example-review-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="docs/example-review-light.png" />
+  <img alt="Kaniscope posting inline review comments on a pull request" src="docs/example-review-light.png" />
+</picture>
 
 ## Usage
 
