@@ -1,8 +1,30 @@
 # 🦀 Kaniscope — AI Code Review
 
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Kaniscope-orange?logo=github)](https://github.com/marketplace/actions/kaniscope-ai-code-review)
+[![Release](https://img.shields.io/github/v/release/nhatvu148/kaniscope-action?color=orange)](https://github.com/nhatvu148/kaniscope-action/releases)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
+
 A GitHub Action that reviews your pull requests with an AI model and posts a
 **line-anchored inline review + a summary comment** — powered by the open-source
 [`pr-review-core`](https://crates.io/crates/pr-review-core) Rust engine.
+
+**Add it in 20 seconds** — drop this in `.github/workflows/kaniscope.yml`, then add an `OPENROUTER_API_KEY` repo secret:
+
+```yaml
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: nhatvu148/kaniscope-action@v1
+        with:
+          openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
+```
 
 - **Advisory, never blocking** — it comments, it doesn't gate merges or edit code.
 - **Cheap** — runs on [OpenRouter](https://openrouter.ai) with the model you choose; pennies per PR on a light model.
