@@ -1,0 +1,34 @@
+name: 'Kaniscope AI Code Review'
+description: 'AI code review for your pull requests — posts inline + summary comments. Powered by the pr-review-core Rust engine.'
+author: 'nhatvu148'
+
+branding:
+  icon: 'eye'
+  color: 'orange'
+
+inputs:
+  openrouter-api-key:
+    description: 'OpenRouter API key that funds the review. Get one at https://openrouter.ai/keys and store it as a repo secret.'
+    required: true
+  model:
+    description: 'OpenRouter model for the review. A cheaper model keeps cost to pennies per PR; leave the default unless you want top quality.'
+    required: false
+    default: 'moonshotai/kimi-k2-0905'
+  github-token:
+    description: 'Token used to read the PR diff and post the review. Defaults to the workflow token (needs pull-requests: write).'
+    required: false
+    default: ${{ github.token }}
+  dry-run:
+    description: 'If true, generate the review and print it to the workflow log without posting to the PR.'
+    required: false
+    default: 'false'
+  max-diff-chars:
+    description: 'Truncate diffs larger than this many characters before sending to the model (cost cap).'
+    required: false
+  max-tokens:
+    description: 'Max output tokens per review call (cost cap).'
+    required: false
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
