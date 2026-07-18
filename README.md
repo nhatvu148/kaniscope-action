@@ -32,6 +32,13 @@ jobs:
 
 > Try the engine live, no setup, at the **[Kaniscope playground](https://kaniscope.nvnv.app)** — paste a diff or a PR URL and see a review.
 
+## What it looks like
+
+It posts a summary comment plus **line-anchored inline comments** on the exact
+lines — here reviewing a file with a SQL-injection and two missing-`await` bugs:
+
+![Kaniscope posting inline review comments on a pull request](docs/example-review.png)
+
 ## Usage
 
 Add `.github/workflows/kaniscope.yml`:
