@@ -18,6 +18,10 @@ inputs:
     description: 'Token used to read the PR diff and post the review. Defaults to the workflow token (needs pull-requests: write).'
     required: false
     default: ${{ github.token }}
+  comment-marker:
+    description: "Short marker prefixed to the review comments (used to find and update its own comments on re-runs)."
+    required: false
+    default: '🦀 Kaniscope'
   dry-run:
     description: 'If true, generate the review and print it to the workflow log without posting to the PR.'
     required: false

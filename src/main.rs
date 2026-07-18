@@ -68,6 +68,7 @@ async fn main() -> anyhow::Result<()> {
     map_input("github-token", "GH_TOKEN");
     map_input("max-diff-chars", "MAX_DIFF_CHARS");
     map_input("max-tokens", "OPENROUTER_MAX_TOKENS");
+    map_input("comment-marker", "COMMENT_MARKER");
     let dry_run = input_flag("dry-run");
 
     let repo = std::env::var("GITHUB_REPOSITORY").map_err(|_| {

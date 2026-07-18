@@ -22,7 +22,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4          # needed so `uses: ./` can find the action
+      - uses: actions/checkout@v5          # needed so `uses: ./` can find the action
       - name: Kaniscope review (dry-run)
         uses: ./
         with:
