@@ -1,0 +1,31 @@
+# Self-test: run the action in DRY-RUN on this repo's own PRs to validate the
+# full Docker build + runtime path end-to-end (it does NOT post a comment).
+#
+# Requires a repo secret named OPENROUTER_API_KEY
+#   (Settings → Secrets and variables → Actions → New repository secret).
+# Note: only runs for same-repo PRs — PRs from forks don't receive secrets.
+name: self-test (dry-run)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read      # dry-run only reads the diff; it does not post
+
+concurrency:
+  group: selftest-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4          # needed so `uses: ./` can find the action
+      - name: Kaniscope review (dry-run)
+        uses: ./
+        with:
+          openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
+          model: moonshotai/kimi-k2-0905
+          dry-run: 'true'
