@@ -91,17 +91,41 @@ async fn main() -> anyhow::Result<()> {
         "Kaniscope: reviewing {repo}#{pr}{}…",
         if dry_run { " (dry-run)" } else { "" }
     );
-    let out = run_review(
+    let out = match run_review(
         &cfg,
         RunReviewInput {
             provider: "github".into(),
-            repo,
+            repo: repo.clone(),
             pr,
             dry_run,
             placeholder: !dry_run,
         },
     )
-    .await?;
+    .await
+    {
+        Ok(out) => out,
+        Err(e) => {
+            // A non-dry-run posted a "⏳ Reviewing this PR…" placeholder before the
+            // slow call. Bailing here would leave it on the PR promising a review
+            // that will never arrive — and unlike the long-running bots, this action
+            // never runs again to replace it. Say what happened instead.
+            //
+            // Only when a placeholder was actually posted: core's upsert CREATES the
+            // summary comment when none exists, so a dry-run retraction would post a
+            // failure notice onto a PR that was never commented on.
+            if !dry_run {
+                pr_review_core::review::post_review_failure(
+                    "github",
+                    &cfg,
+                    &repo,
+                    pr,
+                    &format!("{e:#}"),
+                )
+                .await;
+            }
+            return Err(e);
+        }
+    };
 
     println!(
         "Kaniscope: {} finding(s) · recommendation: {} · model {}",
