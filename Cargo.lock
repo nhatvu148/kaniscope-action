@@ -701,9 +701,9 @@ dependencies = [
 
 [[package]]
 name = "pr-review-core"
-version = "0.26.0"
+version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfd7329af0580fb3a05afa35562094a62551b68e0193b0409455f72cae9e8b2e"
+checksum = "78cc182399c0ce28b69f589d6b5ba471b5d90b20bccda424cebc0d7bffabe146"
 dependencies = [
  "agent-loop-core",
  "anyhow",
@@ -713,6 +713,7 @@ dependencies = [
  "hex",
  "hmac",
  "ignore",
+ "libc",
  "regex",
  "reqwest",
  "schemars",
