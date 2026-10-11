@@ -45,7 +45,9 @@ jobs:
           # object itself back, then check it really is one before reading it.
           git fetch --force origin "refs/tags/${TAG}:refs/tags/${TAG}"
           if [ "$(git cat-file -t "refs/tags/${TAG}")" = tag ]; then
-            NOTES="$(git tag -l --format='%(contents)' "$TAG")"
+            # subject + body, not %(contents): that one appends the signature
+            # block of a GPG/SSH-signed tag to the notes.
+            NOTES="$(git tag -l --format='%(contents:subject)%0a%0a%(contents:body)' "$TAG")"
           else
             NOTES=""
           fi
