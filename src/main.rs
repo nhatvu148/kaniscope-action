@@ -7,7 +7,7 @@
 //! the rest of the configuration.
 
 use pr_review_core::config::Config;
-use pr_review_core::review::{run_review, RunReviewInput};
+use pr_review_core::review::{run_review, NothingToReview, RunReviewInput};
 
 /// Copy a GitHub Action input into the env var `pr_review_core` reads (when the
 /// input is present and non-empty). GitHub exposes inputs as `INPUT_<NAME>` with
@@ -104,6 +104,14 @@ async fn main() -> anyhow::Result<()> {
     .await
     {
         Ok(out) => out,
+        // An empty or fully-excluded diff with no advisories is an outcome, not a
+        // failure: core has already replaced the placeholder with a no-review note.
+        // Treating it as an error would overwrite that note with a failure notice
+        // and fail the check on every lockfile-only PR.
+        Err(e) if e.downcast_ref::<NothingToReview>().is_some() => {
+            println!("Kaniscope: {e}");
+            return Ok(());
+        }
         Err(e) => {
             // A non-dry-run posted a "⏳ Reviewing this PR…" placeholder before the
             // slow call. Bailing here would leave it on the PR promising a review
