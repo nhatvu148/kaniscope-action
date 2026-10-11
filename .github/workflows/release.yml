@@ -35,9 +35,22 @@ jobs:
         run: |
           set -euo pipefail
           # There is no CHANGELOG here; releases are engine bumps, and the tag
-          # annotation already says which engine version it carries. Fall back to
-          # the commit subject if the tag is lightweight.
-          NOTES="$(git tag -l --format='%(contents)' "$TAG")"
+          # annotation already says what changed.
+          #
+          # actions/checkout replaces an annotated tag with a lightweight one: on a
+          # tag push it re-fetches `+<sha>:refs/tags/<tag>`, and the log shows
+          # "t [tag update] <sha> -> <tag>". `%(contents)` of a lightweight tag is
+          # the COMMIT message, not empty, so the fallback below never fired and
+          # v0.1.22 shipped "Merge pull request #24 …" as its notes. Fetch the tag
+          # object itself back, then check it really is one before reading it.
+          git fetch --force origin "refs/tags/${TAG}:refs/tags/${TAG}"
+          if [ "$(git cat-file -t "refs/tags/${TAG}")" = tag ]; then
+            # subject + body, not %(contents): that one appends the signature
+            # block of a GPG/SSH-signed tag to the notes.
+            NOTES="$(git tag -l --format='%(contents:subject)%0a%0a%(contents:body)' "$TAG")"
+          else
+            NOTES=""
+          fi
           if [ -z "${NOTES//[[:space:]]/}" ]; then
             NOTES="$(git log -1 --format='%s%n%n%b' "$TAG")"
             echo "::warning::$TAG has no annotation — used the commit message"
