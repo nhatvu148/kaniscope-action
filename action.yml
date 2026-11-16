@@ -53,4 +53,4 @@ runs:
   # The published manifest is linux/amd64 ONLY. ubuntu-latest is amd64 so the
   # common case is fine, but arm64 runners fail with "no matching manifest".
   # Building on the runner used to hide this by following its architecture.
-  image: 'docker://ghcr.io/nhatvu148/kaniscope-action:v0.1.28'
+  image: 'docker://ghcr.io/nhatvu148/kaniscope-action:v0.1.29'
