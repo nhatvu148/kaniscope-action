@@ -87,9 +87,13 @@ async fn main() -> anyhow::Result<()> {
         );
     }
 
+    // The engine version, in every consumer's log. An action ref that runs an old
+    // image looks exactly like one that runs the current one until something
+    // says which engine actually ran.
     println!(
-        "Kaniscope: reviewing {repo}#{pr}{}…",
-        if dry_run { " (dry-run)" } else { "" }
+        "Kaniscope: reviewing {repo}#{pr}{} with pr-review-core {}…",
+        if dry_run { " (dry-run)" } else { "" },
+        pr_review_core::VERSION
     );
     let out = match run_review(
         &cfg,

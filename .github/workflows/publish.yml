@@ -1,20 +1,41 @@
 name: Publish image
 
 # Publishes the action's container to GHCR so consumers pull it instead of
-# compiling Rust on every run. action.yml points at :v1, so that floating tag is
-# published explicitly here — `type=semver,pattern=v{{major}}` would emit `v0`
-# for a v0.1.x release, which is not what action.yml references.
+# compiling Rust on every run. action.yml pins the exact :vX.Y.Z image, which the
+# shared workflow publishes from the tag.
 #
-# Ordering matters on first adoption: the image must exist at :v1 BEFORE the
-# floating v1 git tag moves to a commit whose action.yml references it.
-# Pushing a version tag runs this job, so tag first, then move v1.
+# The floating :v1 IMAGE tag is still published, for one audience only: git tags
+# cut before images were pinned (v0.1.28 and older) name :v1 in their
+# action.yml, and stopping it would freeze them on whatever :v1 held last.
+# Nothing current reads it.
+#
+# Ordering: the :vX.Y.Z image must exist BEFORE the floating v1 git tag moves to
+# the commit that names it. Pushing the version tag runs this job, so tag first,
+# wait for it, then move v1.
 on:
   push:
     tags: ["v*.*.*"]
   workflow_dispatch:
 
 jobs:
+  # A tag whose action.yml names a different image would publish :vX.Y.Z while
+  # every consumer of that tag ran some other image. Refuse before building.
+  pin:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: action.yml runs this tag's own image
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then
+            sh scripts/check-image-pin.sh "${GITHUB_REF_NAME}"
+          else
+            sh scripts/check-image-pin.sh
+          fi
+
   publish:
+    needs: pin
     uses: nhatvu148/shared-workflows/.github/workflows/docker-publish.yml@v1
     permissions:
       contents: read

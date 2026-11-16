@@ -31,6 +31,13 @@ jobs:
       - name: Resolve tag
         run: echo "TAG=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_ENV"
 
+      # The Release is what Marketplace users pick a version from, so do not list
+      # a tag whose action.yml would run another release's image. Only on a tag
+      # push: a manual re-run for an old tag (pre-pinning, :v1) must still work.
+      - name: action.yml runs this tag's own image
+        if: github.event_name == 'push'
+        run: sh scripts/check-image-pin.sh "$TAG"
+
       - name: Build notes
         run: |
           set -euo pipefail
