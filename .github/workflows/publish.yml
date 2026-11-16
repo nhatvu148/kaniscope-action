@@ -35,15 +35,23 @@ jobs:
           fi
       # Users pinned to @vX.Y.Z run that image forever, so it must never be
       # rebuilt under them: a manual dispatch on an old tag would otherwise pass
-      # the check above and overwrite it. A re-run of the tag push's own run is
-      # allowed (run_attempt > 1): same commit, and it is how a publish that
-      # failed after pushing gets finished.
+      # the check above and overwrite it. A re-run of the tag PUSH's own run is
+      # allowed (run_attempt > 1 on a push event): same commit, and it is how a
+      # publish that failed after pushing gets finished. A manual dispatch is
+      # checked on every attempt, or "Re-run" would be the way around this.
+      #
+      # Fails closed: only a clear "not found" means unpublished. A GHCR outage,
+      # rate limit or auth error stops the build rather than letting it overwrite.
       - name: this tag's image is not already published
-        if: github.ref_type == 'tag' && github.run_attempt == '1'
+        if: github.ref_type == 'tag' && (github.event_name != 'push' || github.run_attempt == '1')
         run: |
           image="ghcr.io/nhatvu148/kaniscope-action:${GITHUB_REF_NAME}"
-          if docker manifest inspect "$image" >/dev/null 2>&1; then
+          if out=$(docker manifest inspect "$image" 2>&1); then
             echo "::error::$image is already published; a version tag's image is never replaced. Cut a new version instead."
+            exit 1
+          fi
+          if ! printf '%s\n' "$out" | grep -Eqi 'manifest unknown|not found'; then
+            echo "::error::could not tell whether $image is published: $out"
             exit 1
           fi
           echo "$image is not published yet"

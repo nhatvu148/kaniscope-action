@@ -23,7 +23,9 @@ and 2026-09-04 that left `@v1` eight `pr-review-core` minor versions behind
 #      image: 'docker://ghcr.io/nhatvu148/kaniscope-action:v0.1.29'
 #    The PR check and the tag-push jobs fail if this line does not match.
 
-# 2. Annotated tag on that commit. Its body becomes the release notes verbatim;
+# 2. Annotated tag on that commit, right after it merges. Until the image is
+#    published, @main and that commit's SHA name an image that does not exist,
+#    so keep the gap short. Its body becomes the release notes verbatim;
 #    release.yml reads the annotation.
 git tag -a v0.1.29 -m "v0.1.29
 
