@@ -57,8 +57,9 @@ at the `v1` tag, pulls the image it names anonymously, and runs the action
 through `@v1` the way a real user does. Green there means a consumer gets what
 you think they get.
 
-The review log names the engine that ran (`with pr-review-core X.Y.Z`), so a
-consumer's run says which engine reviewed it.
+From v0.1.29 on, the review log names the engine that ran (`with
+pr-review-core X.Y.Z`), so a consumer's run says which engine reviewed it.
+Images up to v0.1.28 predate that line.
 
 To confirm the image exists under the new tag:
 
