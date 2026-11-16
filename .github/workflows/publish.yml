@@ -33,6 +33,20 @@ jobs:
           else
             sh scripts/check-image-pin.sh
           fi
+      # Users pinned to @vX.Y.Z run that image forever, so it must never be
+      # rebuilt under them: a manual dispatch on an old tag would otherwise pass
+      # the check above and overwrite it. A re-run of the tag push's own run is
+      # allowed (run_attempt > 1): same commit, and it is how a publish that
+      # failed after pushing gets finished.
+      - name: this tag's image is not already published
+        if: github.ref_type == 'tag' && github.run_attempt == '1'
+        run: |
+          image="ghcr.io/nhatvu148/kaniscope-action:${GITHUB_REF_NAME}"
+          if docker manifest inspect "$image" >/dev/null 2>&1; then
+            echo "::error::$image is already published; a version tag's image is never replaced. Cut a new version instead."
+            exit 1
+          fi
+          echo "$image is not published yet"
 
   publish:
     needs: pin

@@ -42,7 +42,9 @@ git tag -f v1 v0.1.29^{}
 git push --force origin v1
 ```
 
-Step 1 is what is new. Forgetting it is caught rather than shipped:
+Between releases, `main` pins the last released image, so the next release
+always needs that bump in its own commit. Step 1 is what is new. Forgetting it
+is caught rather than shipped:
 `scripts/check-image-pin.sh v0.1.29` fails both tag-push workflows before
 anything is built or listed, and the pin check on PRs rejects a floating tag.
 
@@ -79,4 +81,5 @@ those tags on whatever `:v1` held last.
 - **Don't move `v1` to a commit whose image has not been published.** `@v1`
   would then fail to pull for every consumer.
 - **Don't re-push an existing version tag's image.** Users pinned to
-  `@vX.Y.Z` expect that image never to change.
+  `@vX.Y.Z` expect that image never to change. publish.yml refuses to build a
+  tag whose image already exists, except on a re-run of that tag push's own run.
