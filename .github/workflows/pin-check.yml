@@ -1,0 +1,22 @@
+# action.yml must name an exact release image (:vX.Y.Z), never a floating tag.
+#
+# Checked on every PR, not only at release, because a floating tag here is
+# silent: every git ref of the action would run whatever image was last pushed
+# under it, and nothing else would go red. The tag-push workflows also check
+# that the pin is the tag's OWN version; see RELEASING.md.
+name: image pin
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  pin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: action.yml pins an exact image tag
+        run: sh scripts/check-image-pin.sh

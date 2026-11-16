@@ -39,6 +39,13 @@ runs:
   # compile this crate plus all of pr-review-core before the review even started,
   # adding minutes to every PR. This is a pull instead.
   #
+  # Pinned to this release's OWN image tag, never the floating :v1. A git ref of
+  # this action runs whatever image the action.yml at that ref names, so with :v1
+  # here every tag ran the last image pushed under :v1 instead of its own code,
+  # and @v1 sat eight engine releases behind with nothing failing. Each release
+  # commit bumps this line to the tag it is about to get (RELEASING.md), and
+  # scripts/check-image-pin.sh fails a PR or a tag push that does not.
+  #
   # Published by .github/workflows/publish.yml on version tags. The self-test
   # deliberately does NOT go through this path - it builds the Dockerfile itself,
   # so a PR is tested against its own code rather than the last release.
@@ -46,4 +53,4 @@ runs:
   # The published manifest is linux/amd64 ONLY. ubuntu-latest is amd64 so the
   # common case is fine, but arm64 runners fail with "no matching manifest".
   # Building on the runner used to hide this by following its architecture.
-  image: 'docker://ghcr.io/nhatvu148/kaniscope-action:v1'
+  image: 'docker://ghcr.io/nhatvu148/kaniscope-action:v0.1.28'

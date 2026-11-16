@@ -6,7 +6,8 @@
 #   uses: nhatvu148/kaniscope-action@v1
 #     -> resolve the floating v1 git tag
 #     -> read action.yml from it
-#     -> pull ghcr.io/nhatvu148/kaniscope-action:v1 ANONYMOUSLY
+#     -> pull the exact image it pins (ghcr.io/nhatvu148/kaniscope-action:vX.Y.Z)
+#        ANONYMOUSLY
 #     -> run that image
 #
 # Every one of those steps can break without a single test going red: the tag
@@ -41,13 +42,22 @@ jobs:
     # every consumer actually uses.
     runs-on: ubuntu-latest
     steps:
-      - name: Confirm the image is anonymously pullable for this runner's arch
+      # The image action.yml at the v1 git tag names, read from that tag rather
+      # than assumed: since images are pinned per release, "the :v1 image" is not
+      # what @v1 runs.
+      - name: Confirm the image @v1 runs is anonymously pullable for this runner's arch
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          image=$(gh api "repos/${GITHUB_REPOSITORY}/contents/action.yml?ref=v1" --jq .content \
+            | base64 -d | sed -n "s/^[[:space:]]*image:[[:space:]]*['\"]\{0,1\}docker:\/\/\([^'\"[:space:]]*\).*/\1/p")
+          [ -n "$image" ] || { echo "::error::no image: line in action.yml at v1"; exit 1; }
+          echo "@v1 runs $image"
           docker logout ghcr.io >/dev/null 2>&1 || true
           echo "runner arch: $(uname -m)"
-          docker pull ghcr.io/nhatvu148/kaniscope-action:v1
-          docker image inspect ghcr.io/nhatvu148/kaniscope-action:v1 \
+          docker pull "$image"
+          docker image inspect "$image" \
             --format 'pulled {{.Os}}/{{.Architecture}} · {{.Size}} bytes'
 
       # The real consumer entry point. Skipped when there is no PR to resolve

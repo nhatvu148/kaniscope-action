@@ -130,6 +130,6 @@ prefer. See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE).
 
 ## Releasing
 
-See [RELEASING.md](RELEASING.md). The order is load-bearing: tag, wait for the
-image to publish, *then* move the floating `v1` tag. Moving `v1` first leaves
-every consumer on the previous image with nothing failing to tell you.
+See [RELEASING.md](RELEASING.md). Each release commit pins `action.yml` to its
+own image tag (`:vX.Y.Z`), so a git ref always runs its own image. Then tag, wait
+for the image to publish, and only then move the floating `v1` tag.
